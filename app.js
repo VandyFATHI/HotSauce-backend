@@ -1,16 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-
 const app = express();
+const userRoutes = require('./routes/auth')
 
-mongoose.connect('mongodb+srv://' + process.env.USER + ':' + process.env.PASSWORD + '@cluster.gsvqzsq.mongodb.net/?retryWrites=true&w=majority',
+// Connection avec la base de donnee mongoDB
+mongoose.connect(process.env.CONNECTION_STRING,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
     .then(() => console.log('Connexion à MongoDB réussie !'))
-    .catch(() => console.log('Connexion à MongoDB échouée !'));
+    .catch(() => {
+        console.log('Connexion à MongoDB échouée !');
+        process.exit(1);
+    });
 
 app.use(express.json());
 
@@ -21,11 +25,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.post('/api/auth/signup', (req, res, next) => {
-    console.log(req.body.email);
-    console.log(req.body.password);
-    res.json({ message: "creation du user" });
-});
+app.use('/api/auth', userRoutes);
 
 
 module.exports = app;
